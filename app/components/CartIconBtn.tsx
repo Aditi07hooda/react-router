@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AddShoppingCart from "../../public/images/collection/AddShoppingCart.png";
+import AddShoppingCart from "/images/collection/AddShoppingCart.png";
 import CartDialogBox from "./CartDialogBox";
 
 interface CartIconBtnProps {
@@ -7,7 +7,7 @@ interface CartIconBtnProps {
 }
 
 const CartIconBtn: React.FC<CartIconBtnProps> = ({ cartLength }) => {
-  const [state, setState] = useState<{ isCartDialogOpen: boolean }>({
+  const [state, setState] = useState({
     isCartDialogOpen: false,
   });
 

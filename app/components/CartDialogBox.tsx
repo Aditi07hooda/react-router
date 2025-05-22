@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { IoCloseSharp } from "react-icons/io5";
+import { useLoaderData } from "react-router";
+import { fetchCartAfterAddingItem, triggerAddToCart } from "~/routes/handleApi";
 
 interface CartItem {
   variantId: string;
@@ -16,29 +18,23 @@ interface CartDialogBoxProps {
 const CartDialogBox: React.FC<CartDialogBoxProps> = ({ dialogClose }) => {
   const base_url = import.meta.env.VITE_BASE_URL;
   const brand_id = import.meta.env.VITE_BRAND_ID;
-  const sessionId = localStorage.getItem("sessionID");
+
+  const loaderData = useLoaderData();
 
   const [state, setState] = useState<{ cartItems: CartItem[] }>({
-    cartItems: [],
+    cartItems: loaderData.cartItems || [],
   });
 
-  const fetchCart = async () => {
-    const res = await fetch(`${base_url}/store/${brand_id}/cart/full`, {
-      headers: {
-        session: sessionId!,
-      },
-    });
-    const data = await res.json();
-    console.log(data.cart.items);
-    setState((prev) => ({
-      ...prev,
-      cartItems: data.cart?.items || [],
-    }));
-  };
-
   useEffect(() => {
-    fetchCart();
-  }, []);
+    const fetchData = async () => {
+      const data = await fetchCartAfterAddingItem(base_url, brand_id, loaderData.sessionId || "");
+      setState((prev) => ({
+        ...prev,
+        cartItems: data.cart.items || [],
+      }));
+    };
+    fetchData();
+  }, [triggerAddToCart]);
 
   return (
     <>
@@ -73,7 +69,11 @@ const CartDialogBox: React.FC<CartDialogBoxProps> = ({ dialogClose }) => {
               disabled={state.cartItems.length === 0}
               className="disabled:bg-[#80011F]/60 disabled:cursor-default flex cursor-pointer justify-between mt-3 gap-2 align-middle items-center py-2 px-4 bg-[#80011F] text-white rounded-2xl shadow-2xl font-[NovaRound] font-[400] font-xl tracking-tight"
             >
-              <a href="https://themilletstore.in/user/checkout" target="_blank" rel="noopener noreferrer">
+              <a
+                href="https://themilletstore.in/user/checkout"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 Checkout
               </a>
             </button>

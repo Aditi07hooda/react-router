@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { changeTriggerAddToCart } from "~/routes/handleApi";
+import { useCartStore } from "~/store/cart";
 
 interface Variant {
   id: string;
@@ -22,14 +24,15 @@ interface ProductData {
 
 interface ProductProps {
   p: ProductData;
-  fetchCart: () => void;
   selectedVariants: Record<string, Variant>;
+  sessionId: string | null;
 }
 
-const Product: React.FC<ProductProps> = ({ p, fetchCart, selectedVariants }) => {
+const Product: React.FC<ProductProps> = ({ p, selectedVariants, sessionId }) => {
   const base_url = import.meta.env.VITE_BASE_URL;
   const brand_id = import.meta.env.VITE_BRAND_ID;
-  const sessionId = localStorage.getItem("sessionID");
+
+  const incrementCartLength = useCartStore((state) => state.increaseCartLength);
 
   const [state, setState] = useState<{
     selectedVariants: Record<string, Variant>;
@@ -50,7 +53,8 @@ const Product: React.FC<ProductProps> = ({ p, fetchCart, selectedVariants }) => 
     );
     const data = await res.json();
     console.log("add item to cart", data);
-    fetchCart();
+    incrementCartLength();
+    changeTriggerAddToCart(true);
   };
 
   const calculateVariantPrice = (variantName: string, product: ProductData) => {

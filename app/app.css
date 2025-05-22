@@ -1,1 +1,53 @@
 @import "tailwindcss";
+
+@font-face {
+    font-family: chairdrobe;
+    src: url("/fonts/chairdrobe-rounded-light.otf");
+}
+
+@font-face {
+    font-family: ultimaAlt-bold;
+    src: url("/fonts/Ultima/Ultima Alt Bold.ttf");
+}
+@font-face {
+    font-family: ultimaAlt-light;
+    src: url("/fonts/Ultima/Ultima Alt Light.ttf");
+}
+@font-face {
+    font-family: ultimaAlt;
+    src: url("/fonts/Ultima/Ultima Alt.ttf");
+}
+@font-face {
+    font-family: ultima-black;
+    src: url("/fonts/Ultima/Ultima Black.ttf");
+}
+@font-face {
+    font-family: "ultima-bold";
+    src: url("/fonts/Ultima/Ultima Bold.ttf");
+}
+@font-face {
+    font-family: ultima-bold-italic;
+    src: url("/fonts/Ultima/Ultima Bold Italic.ttf");
+}
+@font-face {
+    font-family: ultima-italic;
+    src: url("/fonts/Ultima/Ultima Italic.ttf");
+}
+@font-face {
+    font-family: ultima-light-italic;
+    src: url("/fonts/Ultima/Ultima Light Italic.ttf");
+}
+@font-face {
+    font-family: ultima-light;
+    src: url("/fonts/Ultima/Ultima Light.ttf");
+}
+@font-face {
+    font-family: ultima;
+    src: url("/fonts/Ultima/Ultima.ttf");
+}
+
+/* chairdrobe */
+@font-face {
+    font-family: chairdrobe-black;
+    src: url("/fonts/Chairdrobe/chairdrobe-black.otf");
+}

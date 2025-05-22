@@ -1,36 +1,28 @@
-import React, { useEffect, useState } from 'react'
-import MobileView from '../Pages/MobileView'
-import Desktop from '../Pages/DesktopView'
+import { useEffect } from "react";
+import MobileView from "../Pages/MobileView";
+import Desktop from "../Pages/DesktopView";
+import { useLoaderData, type LoaderFunctionArgs } from "react-router";
+import { mobileViewLoader } from "~/routes/handleApi";
 
-const welcome = () => {
-  const base_url = import.meta.env.VITE_BASE_URL;
-  const brand_id = import.meta.env.VITE_BRAND_ID;
-
-  const [session, setSession] = useState('')
-
-  const fetchSession = async () => {
-    const res = await fetch(`${base_url}/store/${brand_id}/init`,{
-        method: 'post'
-    });
-    const data = await res.json();
-    localStorage.setItem("sessionID", data.session);
-    setSession(data.session);
-    console.log("session set - ", session);
-  };
-
+export async function loader({ request }: LoaderFunctionArgs) {
+  const data = await mobileViewLoader({ request } as any);
+  return data;
+}
+const Welcome = () => {
+  const loaderData = useLoaderData();
   useEffect(() => {
-    fetchSession();
+    document.cookie = `sessionID=${loaderData.sessionId}; path=/; SameSite=Lax;`;
   }, []);
   return (
     <div>
       <div className="md:hidden">
-        <MobileView />
+        <MobileView loaderData={loaderData} />
       </div>
       <div className="hidden md:block">
-        <Desktop />
+        <Desktop loaderData={loaderData} />
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default welcome
+export default Welcome;

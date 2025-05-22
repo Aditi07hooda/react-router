@@ -1,21 +1,21 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaBars, FaSearch } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import firstImage from "../../public/images/collection/firstPage.png";
-import AddShoppingCart from "../../public/images/collection/AddShoppingCart.png";
-import Child from "../../public/images/collection/child.png";
-import HealthCrisis from "../../public/images/collection/HealthCrisisMobile.png";
-import PageCurveRight from "../../public/images/collection/pageCurveRight.png";
-import PageCurveLeft from "../../public/images/collection/pageCurveLeft.png";
-import RealFood from "../../public/images/collection/RealFood.png";
-import Prd1 from "../../public/images/collection/prd1.png";
-import Prd2 from "../../public/images/collection/prd2.png";
-import Prd3 from "../../public/images/collection/prd3.png";
-import ABoutYourHealth from "../../public/images/collection/AboutYourHealth.png";
-import ProductChakkiFreshAtta from "../../public/images/collection/ProductChakkiFreshAtta.png";
-import ProductProteinPowerAtta from "../../public/images/collection/productProteinPowerPlant.png";
-import P70KgPerson from "../../public/images/collection/70kgPerson.png";
-import Bulb from "../../public/images/collection/bulb.png";
+import firstImage from "/images/collection/firstPage.png";
+import AddShoppingCart from "/images/collection/AddShoppingCart.png";
+import Child from "/images/collection/child.png";
+import HealthCrisis from "/images/collection/HealthCrisisMobile.png";
+import PageCurveRight from "/images/collection/pageCurveRight.png";
+import PageCurveLeft from "/images/collection/pageCurveLeft.png";
+import RealFood from "/images/collection/RealFood.png";
+import Prd1 from "/images/collection/prd1.png";
+import Prd2 from "/images/collection/prd2.png";
+import Prd3 from "/images/collection/prd3.png";
+import ABoutYourHealth from "/images/collection/AboutYourHealth.png";
+import ProductChakkiFreshAtta from "/images/collection/ProductChakkiFreshAtta.png";
+import ProductProteinPowerAtta from "/images/collection/productProteinPowerPlant.png";
+import P70KgPerson from "/images/collection/70kgPerson.png";
+import Bulb from "/images/collection/bulb.png";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type SwiperCore from "swiper";
 import "swiper/css";
@@ -23,6 +23,7 @@ import "swiper/css/navigation";
 import { Navigation } from "swiper/modules";
 import CartIconBtn from "../components/CartIconBtn";
 import Product from "~/components/Product";
+import { useCartStore } from "~/store/cart";
 
 interface Variant {
   id: string;
@@ -48,73 +49,30 @@ interface StateType {
   products: ProductItem[];
   selectedVariants: Record<string, Variant>;
   highlight: boolean;
-  cartLength: number;
 }
 
-const MobileView: React.FC = () => {
-  const base_url = import.meta.env.VITE_BASE_URL;
-  const brand_id = import.meta.env.VITE_BRAND_ID;
-  let sessionId: string | null;
-  if (typeof window !== "undefined") {
-    sessionId = localStorage.getItem("sessionID");
-  }
+interface MobileViewProps {
+  loaderData: {
+    products: ProductItem[];
+    selectedVariants: Record<string, Variant>;
+    cartLength: number;
+    sessionId: string;
+  };
+}
 
+const MobileView: React.FC<MobileViewProps> = ({ loaderData }) => {
   const addToCartRef = useRef<HTMLDivElement | null>(null);
   const prevRef = useRef<HTMLDivElement | null>(null);
   const nextRef = useRef<HTMLDivElement | null>(null);
 
+  const setCartLength = useCartStore((state) => state.setCartLength);
+  const cartLength = useCartStore((state) => state.cartLength);
+
   const [state, setState] = useState<StateType>({
-    products: [],
-    selectedVariants: {},
+    products: loaderData.products,
+    selectedVariants: loaderData.selectedVariants,
     highlight: false,
-    cartLength: 0,
   });
-
-  const fetchCart = async () => {
-    try {
-      const res = await fetch(`${base_url}/store/${brand_id}/cart/full`, {
-        headers: {
-          session: sessionId || "",
-        },
-      });
-      const data = await res.json();
-      setState((prev) => ({
-        ...prev,
-        cartLength: data.cart?.items?.length || 0,
-      }));
-    } catch (err) {
-      console.error("Failed to fetch cart:", err);
-    }
-  };
-
-  const fetchCollectionProduct = async () => {
-    try {
-      const res = await fetch(
-        `${base_url}/store/${brand_id}/categories/61b122e4-6d41-44f1-9a15-f8c3988b1710/products`,
-        {
-          headers: {
-            session: sessionId || "",
-          },
-        }
-      );
-      const data: ProductItem[] = await res.json();
-
-      const initialSelectedVariants: Record<string, Variant> = {};
-      data.forEach((product) => {
-        if (product.variants && product.variants.length > 0) {
-          initialSelectedVariants[product.id] = product.variants[0];
-        }
-      });
-
-      setState((prev) => ({
-        ...prev,
-        products: data,
-        selectedVariants: initialSelectedVariants,
-      }));
-    } catch (error) {
-      console.error("Failed to fetch products:", error);
-    }
-  };
 
   const handleAddToCart = () => {
     addToCartRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -133,8 +91,7 @@ const MobileView: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchCollectionProduct();
-    fetchCart();
+    setCartLength(loaderData.cartLength);
   }, []);
 
   return (
@@ -490,8 +447,8 @@ const MobileView: React.FC = () => {
               <SwiperSlide key={p.id}>
                 <Product
                   p={p}
-                  fetchCart={fetchCart}
                   selectedVariants={state.selectedVariants}
+                  sessionId={loaderData.sessionId}
                 />
               </SwiperSlide>
             ))}
@@ -509,9 +466,9 @@ const MobileView: React.FC = () => {
             </div>
           </Swiper>
         </div>
-        {state.cartLength !== 0 && (
+        {cartLength !== 0 && (
           <div className="w-fit float-end fixed right-12 bottom-10 z-[100]">
-            <CartIconBtn cartLength={state.cartLength} />
+            <CartIconBtn cartLength={cartLength} />
           </div>
         )}
       </div>
